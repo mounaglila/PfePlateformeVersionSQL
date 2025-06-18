@@ -18,8 +18,8 @@ router.get("/zip-download/:id/:token", downloadZip);
 router.get("/hello", helloWorld);
 
 // --- Routes for Table Names --- 
-router.post("/api/tablenames", getTableNamesController); // Keep the POST route for backward compatibility
-router.get("/api/tablenames", getTableNamesWithoutParams); // New GET route
-router.get("/api/tablenames", getTableNamesWithQuery); // Nouvelle route GET avec query params
+router.post("/api/tablenames", getTableNamesController); // Route POST avec paramètres dans le body
+router.get("/api/tablenames", getTableNamesWithoutParams); // Route GET sans paramètres (utilise la session)
+router.get("/api/tablenames/query", getTableNamesWithQuery); // Route GET avec query params
 
 module.exports = router;

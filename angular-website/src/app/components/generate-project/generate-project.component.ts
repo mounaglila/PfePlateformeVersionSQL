@@ -149,7 +149,7 @@ export class GenerateProjectComponent implements OnInit {
 
     setTimeout(() => {
       this.showDownloadButton = true;
-    }, 120000);
+    }, 80000);
 
     const check = () => {
       this.http.head(url, { observe: 'response' }).subscribe({

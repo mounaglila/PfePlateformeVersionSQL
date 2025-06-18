@@ -1,9 +1,0 @@
-===== Setting up Node.js Backend Mongodb =====
-DB_URI: cluster0.3isme4y.mongodb.net
-DB_NAME: DataTest
-USERNAME: glilamouna
-PASSWORD: rC0mE7
-PORT: 3306
-Backend folder created.
-Config folder created.
-Routes folder created.

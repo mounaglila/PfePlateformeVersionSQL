@@ -1,0 +1,53 @@
+===== Setting up Angular Frontend =====
+API response:
+["products","users"]
+Creating Angular project...
+CREATE angular-project/README.md (1478 bytes)
+CREATE angular-project/.editorconfig (314 bytes)
+CREATE angular-project/.gitignore (587 bytes)
+CREATE angular-project/angular.json (2800 bytes)
+CREATE angular-project/package.json (1010 bytes)
+CREATE angular-project/tsconfig.json (915 bytes)
+CREATE angular-project/tsconfig.app.json (424 bytes)
+CREATE angular-project/tsconfig.spec.json (434 bytes)
+CREATE angular-project/.vscode/extensions.json (130 bytes)
+CREATE angular-project/.vscode/launch.json (470 bytes)
+CREATE angular-project/.vscode/tasks.json (938 bytes)
+CREATE angular-project/src/main.ts (250 bytes)
+CREATE angular-project/src/index.html (300 bytes)
+CREATE angular-project/src/styles.scss (80 bytes)
+CREATE angular-project/src/app/app.component.scss (0 bytes)
+CREATE angular-project/src/app/app.component.html (19903 bytes)
+CREATE angular-project/src/app/app.component.spec.ts (943 bytes)
+CREATE angular-project/src/app/app.component.ts (292 bytes)
+CREATE angular-project/src/app/app.config.ts (310 bytes)
+CREATE angular-project/src/app/app.routes.ts (77 bytes)
+CREATE angular-project/public/favicon.ico (15086 bytes)
+    Directory is already under version control. Skipping initialization of git.
+===== Generating components based on the list =====
+CREATE src/app/sidebar/sidebar.component.scss (0 bytes)
+CREATE src/app/sidebar/sidebar.component.html (22 bytes)
+CREATE src/app/sidebar/sidebar.component.spec.ts (599 bytes)
+CREATE src/app/sidebar/sidebar.component.ts (219 bytes)
+CREATE src/app/admin/admin.component.scss (0 bytes)
+CREATE src/app/admin/admin.component.html (20 bytes)
+CREATE src/app/admin/admin.component.spec.ts (585 bytes)
+CREATE src/app/admin/admin.component.ts (211 bytes)
+CREATE src/app/update/update.component.scss (0 bytes)
+CREATE src/app/update/update.component.html (21 bytes)
+CREATE src/app/update/update.component.spec.ts (592 bytes)
+CREATE src/app/update/update.component.ts (215 bytes)
+Generating component products
+CREATE src/app/products/products.component.scss (0 bytes)
+CREATE src/app/products/products.component.html (23 bytes)
+CREATE src/app/products/products.component.spec.ts (606 bytes)
+CREATE src/app/products/products.component.ts (223 bytes)
+Generating component users
+CREATE src/app/users/users.component.scss (0 bytes)
+CREATE src/app/users/users.component.html (20 bytes)
+CREATE src/app/users/users.component.spec.ts (585 bytes)
+CREATE src/app/users/users.component.ts (211 bytes)
+===== Creating shared service for components =====
+CREATE src/app/services/shared.service.spec.ts (357 bytes)
+CREATE src/app/services/shared.service.ts (135 bytes)
+===== All components and shared service generated successfully! =====

@@ -20,12 +20,6 @@ echo "USERNAME: $USERNAME"
 echo "PASSWORD: $PASSWORD"
 echo "PORT: $PORT"
 
-# Vérification de l'installation de Node.js
-if ! command -v node &> /dev/null; then
-      "Node.js n'est pas installé. Veuillez l'installer depuis https://nodejs.org/"
-    exit 1
-fi
-
 # Create the backend folder
 if [ ! -d "$BACKEND_DIR" ]; then
     mkdir -p "$BACKEND_DIR"

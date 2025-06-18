@@ -4,21 +4,27 @@ const fs = require("fs");
 const crypto = require("crypto");
 const archiver = require("archiver");
 
-// --- IMPORTANT: Verify this path is correct for your structure --- 
-// It assumes 'connection' and 'controllers' are sibling directories under 'Backend-Website'
-const { testMongoConnection, getCollectionNames } = require("../connection/dbconnection.js"); 
+// Import des fonctions de connexion
+const { 
+    testMongoConnection, 
+    getCollectionNames,
+    testMySQLConnection,
+    getMySQLTableNames 
+} = require("../connection/dbconnection.js");
 
 const generateProject = async (req, res) => {
     const { frontend, backend, host, dbName, username, password, TypeDB, port } = req.body;
     console.log("Received POST request for /api/generate-project...");
-    console.log("Parameters received:", { backend, host, dbName, username, password, frontend, port });
+    console.log("Parameters received:", { backend, host, dbName, username, password, frontend, port, TypeDB });
 
     // Stocker les paramètres de connexion dans la session de l'utilisateur
     req.session.connectionParams = {
         host,
         dbName,
         username,
-        password
+        password,
+        port,
+        TypeDB
     };
 
     const scriptPath = backend ? path.join(__dirname, "Backend", backend, `run-${backend}-${TypeDB}.sh`) : null;
@@ -34,11 +40,17 @@ const generateProject = async (req, res) => {
         fs.mkdirSync(projectDir, { recursive: true });
         console.log(`Project directory created at ${projectDir}`);
 
-        if (TypeDB && TypeDB.toLowerCase().includes('mongo')) {
-            const auth = username && password ? `${username}:${password}@` : '';
-            const uri = `mongodb+srv://${auth}${host}/${dbName}?retryWrites=true&w=majority`; 
-            console.log(`Attempting MongoDB connection to: ${host}/${dbName}`);
-            await testMongoConnection(uri, dbName); 
+        // Test de connexion à la base de données selon le type
+        if (TypeDB) {
+            if (TypeDB.toLowerCase().includes('mongo')) {
+                const auth = username && password ? `${username}:${password}@` : '';
+                const uri = `mongodb+srv://${auth}${host}/${dbName}?retryWrites=true&w=majority`; 
+                console.log(`Attempting MongoDB connection to: ${host}/${dbName}`);
+                await testMongoConnection(uri, dbName);
+            } else if (TypeDB.toLowerCase().includes('mysql')) {
+                console.log(`Attempting MySQL connection to: ${host}:${port}/${dbName}`);
+                await testMySQLConnection(host, port, dbName, username, password);
+            }
         }
 
         // Send response immediately after validation and directory creation
@@ -76,7 +88,7 @@ const generateProject = async (req, res) => {
                 }
             });
         });
-
+        
         // --- Frontend Script Execution --- 
         const executeFrontend = () => new Promise((resolve, reject) => {
             if (!frontend || !scriptPath2) {
@@ -89,15 +101,15 @@ const generateProject = async (req, res) => {
             }
             const frontendCwd = path.dirname(scriptPath2);
             
-            // --- MODIFICATION HERE: Pass DB credentials to frontend script --- 
             const dbHost = host || '';
             const databaseName = dbName || '';
             const dbUser = username || '';
-            const dbPass = password || ''; // Be cautious about command line passwords
+            const dbPass = password || '';
+            const dbPort = port || '';
+            const dbType = TypeDB || '';
 
-            // Arguments passed: 1=projectDir, 2=dbHost, 3=databaseName, 4=dbUser, 5=dbPass
-            const command = `bash "${scriptPath2}" "${projectDir}" "${dbHost}" "${databaseName}" "${dbUser}" "${dbPass}" > log_frontend_${uniqueId}.txt 2>&1`;
-            // --- End Modification --- 
+            // Arguments passed: 1=projectDir, 2=dbHost, 3=databaseName, 4=dbUser, 5=dbPass, 6=dbPort, 7=dbType
+            const command = `bash "${scriptPath2}" "${projectDir}" "${dbHost}" "${databaseName}" "${dbUser}" "${dbPass}" "${dbPort}" "${dbType}" > log_frontend_${uniqueId}.txt 2>&1`;
 
             console.log(`Executing frontend command: ${command} in CWD: ${frontendCwd}`);
             exec(command, { cwd: frontendCwd }, (err, stdout, stderr) => {
@@ -150,34 +162,31 @@ const generateProject = async (req, res) => {
     }
 };
 
-// --- New Controller Function for Table Names --- 
+// --- Controller Functions for Table Names --- 
 const getTableNamesController = async (req, res) => {
-    // Extract credentials from request body
-    const { host, dbName, username, password } = req.body;
+    const { host, dbName, username, password, port, TypeDB } = req.body;
     console.log(`Received POST request for /api/tablenames for db: ${dbName}@${host}`);
 
-    // Basic validation
     if (!host || !dbName) {
         return res.status(400).json({ message: 'Missing required fields: host and dbName are required.' });
     }
 
     try {
-        // Call the utility function from dbconnection.js
-        const names = await getCollectionNames(host, dbName, username, password);
-        // Send the names back as JSON
+        let names;
+        if (TypeDB && TypeDB.toLowerCase().includes('mysql')) {
+            names = await getMySQLTableNames(host, port, dbName, username, password);
+        } else {
+            names = await getCollectionNames(host, dbName, username, password);
+        }
         res.json(names);
     } catch (error) {
-        // Handle errors (e.g., connection failure, auth failure)
         console.error('Error in getTableNamesController:', error.message);
-        // Send a generic server error message
-        res.status(500).json({ message: error.message || 'Failed to retrieve collection names.' });
+        res.status(500).json({ message: error.message || 'Failed to retrieve table/collection names.' });
     }
 };
 
-// --- New Controller Function for Table Names without parameters --- 
 const getTableNamesWithoutParams = async (req, res) => {
     try {
-        // Récupérer les paramètres de connexion depuis la session de l'utilisateur
         const connectionParams = req.session.connectionParams;
 
         if (!connectionParams || !connectionParams.host || !connectionParams.dbName) {
@@ -188,22 +197,54 @@ const getTableNamesWithoutParams = async (req, res) => {
 
         console.log(`Getting table names for db: ${connectionParams.dbName}@${connectionParams.host}`);
 
-        // Call the utility function from dbconnection.js with the stored parameters
-        const names = await getCollectionNames(
-            connectionParams.host,
-            connectionParams.dbName,
-            connectionParams.username,
-            connectionParams.password
-        );
+        let names;
+        if (connectionParams.TypeDB && connectionParams.TypeDB.toLowerCase().includes('mysql')) {
+            names = await getMySQLTableNames(
+                connectionParams.host,
+                connectionParams.port,
+                connectionParams.dbName,
+                connectionParams.username,
+                connectionParams.password
+            );
+        } else {
+            names = await getCollectionNames(
+                connectionParams.host,
+                connectionParams.dbName,
+                connectionParams.username,
+                connectionParams.password
+            );
+        }
         
-        // Send the names back as JSON
         res.json(names);
     } catch (error) {
         console.error('Error in getTableNamesWithoutParams:', error.message);
-        res.status(500).json({ message: error.message || 'Failed to retrieve collection names.' });
+        res.status(500).json({ message: error.message || 'Failed to retrieve table/collection names.' });
     }
 };
 
+const getTableNamesWithQuery = async (req, res) => {
+    try {
+        const { host, dbName, username, password, port, TypeDB } = req.query;
+        
+        if (!host || !dbName) {
+            return res.status(400).json({
+                message: 'Missing required query parameters: host and dbName are required.'
+            });
+        }
+
+        let names;
+        if (TypeDB && TypeDB.toLowerCase().includes('mysql')) {
+            names = await getMySQLTableNames(host, port, dbName, username, password);
+        } else {
+            names = await getCollectionNames(host, dbName, username, password);
+        }
+        
+        res.json(names);
+    } catch (error) {
+        console.error('Error in getTableNamesWithQuery:', error.message);
+        res.status(500).json({ message: error.message || 'Failed to retrieve table/collection names.' });
+    }
+};
 // --- Download Zip Function --- 
 const downloadZip = (req, res) => {
     const { id, token } = req.params;
@@ -250,26 +291,10 @@ const downloadZip = (req, res) => {
     archive.finalize();
 };
 
-// --- Hello World Function --- 
 const helloWorld = (req, res) => {
-    res.send("Hello World!");
+    res.json({ message: "Hello World!" });
 };
 
-// --- Controller Function for Table Names with query params (GET) --- 
-const getTableNamesWithQuery = async (req, res) => {
-    const { host, dbName, username, password } = req.query;
-    if (!host || !dbName) {
-        return res.status(400).json({ message: 'Missing required fields: host and dbName are required.' });
-    }
-    try {
-        const names = await getCollectionNames(host, dbName, username, password);
-        res.json(names);
-    } catch (error) {
-        res.status(500).json({ message: error.message || 'Failed to retrieve collection names.' });
-    }
-};
-
-// --- Export Functions --- 
 module.exports = {
     generateProject,
     downloadZip,

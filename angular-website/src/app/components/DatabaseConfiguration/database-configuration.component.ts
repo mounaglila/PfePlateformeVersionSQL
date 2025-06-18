@@ -41,7 +41,7 @@ export class DatabaseConfigurationComponent {
 
   generateProject() {
     if (this.databaseForm.invalid) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires (Username, Password, Host, Database Name).';
+      this.errorMessage = 'Fill in all required fields (Username, Password, Host, Database Name).';
       this.databaseForm.markAllAsTouched();
       return;
     }
@@ -64,7 +64,13 @@ export class DatabaseConfigurationComponent {
         token: response.token
       }
     });
-  }
+  },
+  error: (err) => {
+      this.isLoading = false;
+
+      // Afficher un message d’erreur si le backend renvoie une erreur
+      this.errorMessage = err?.error?.message || 'Failed to connect to the database. Please check your information.';
+    }
   });
   }
 }

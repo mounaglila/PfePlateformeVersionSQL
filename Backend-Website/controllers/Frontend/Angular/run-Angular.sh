@@ -7,7 +7,9 @@ DdbName="$3"
 USERNAME="$4"
 PASSWORD="$5"
 PORT="$6"
+TypeDB="$7"
 
+# Define the Angular project folder
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 projectDir="$scriptDir/angular-project"
 projectName="angular-project"
@@ -15,7 +17,7 @@ FRONTEND_DIR="$ROOT_DIR"
 
 # API et fichier temporaire
 jsonFile="$(mktemp)"
-echo "{\"host\":\"$host\",\"dbName\":\"$DdbName\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}" > "$jsonFile"
+echo "{\"host\":\"$host\",\"dbName\":\"$DdbName\",\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\", \"port\":\"$PORT\", \"TypeDB\":\"$TypeDB\"}" > "$jsonFile"
 
 apiUrl="http://localhost:5000/api/tablenames"
 responseFull="/tmp/tablenames.full.json"
