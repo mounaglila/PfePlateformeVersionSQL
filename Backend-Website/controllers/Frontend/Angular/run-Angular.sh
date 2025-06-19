@@ -25,53 +25,48 @@ responseFile="/tmp/tablenames.json"
 responseCode="/tmp/tablenames.code"
 
 # Récupération des données avec capture du code HTTP
-curl -s -w "\n%{http_code}" -X POST -H "Content-Type: application/json" -d @"$jsonFile" "$apiUrl" > "$responseFull"
+response=$(curl -s -w "\n%{http_code}" -X POST -H "Content-Type: application/json" -d @"$jsonFile" "$apiUrl")
 rm "$jsonFile"
 
-# Extraire JSON et code HTTP
-tail -n 1 "$responseFull" > "$responseCode"
-head -n -1 "$responseFull" > "$responseFile"
-status_code=$(cat "$responseCode")
+# Séparer proprement JSON et code HTTP
+status_code="${response##*$'\n'}"
+response_json="${response%$'\n'*}"
+
+# Debug
+echo "API response:"
+echo "$response_json"
 
 # Vérifier le code HTTP
 if [ "$status_code" -ne 200 ]; then
     echo "API call failed with status code $status_code"
-    cat "$responseFile"
-    rm "$responseFile" "$responseFull" "$responseCode"
+    echo "$response_json"
     exit 1
 fi
 
-# Afficher la réponse brute (debug)
-echo "API response:"
-cat "$responseFile"
-
-# Vérifier si la réponse est un JSON valide
-if ! jq . "$responseFile" >/dev/null 2>&1; then
+# Vérifier si le JSON est valide
+echo "$response_json" | jq empty >/dev/null 2>&1
+if [ $? -ne 0 ]; then
     echo "Invalid JSON returned by the API!"
-    cat "$responseFile"
-    rm "$responseFile" "$responseFull" "$responseCode"
+    echo "$response_json"
     exit 1
 fi
 
 # Extraire les noms de tables depuis la réponse
-items=$(jq -r '.[]' "$responseFile" | sed 's/[\[\]_-]//g' | tr '\n' ' ')
+items=$(echo "$response_json" | jq -r '.[]' | sed 's/[\[\]_-]//g' | tr '\n' ' ')
 
 # Vérification de la liste extraite
 if [ -z "$items" ]; then
     echo "Failed to parse table names from the API!"
-    rm "$responseFile" "$responseFull" "$responseCode"
     exit 1
 fi
 
-# Nettoyage
-rm "$responseFile" "$responseFull" "$responseCode"
 
 # Créer le projet Angular si nécessaire
 if [ ! -d "$projectDir" ]; then
     echo "Creating Angular project..."
     ng new "$projectName" --routing --style=scss --skip-install --defaults
     cd "$projectDir"
-
+    rm -f src/app/app.html src/app/app.ts src/app/app.scss src/app/app.spec.ts
 
 # Create styles.scss
 cat > src/styles.scss << 'EOL'
@@ -175,7 +170,15 @@ cat >> src/app/app.component.ts << 'EOL'
     standalone: true,
     imports: [
 EOL
+#main component 
+cat > src/main.ts << 'EOL'
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
 
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));
+EOL
 # Add dynamic component imports
 for item in $items; do
     echo "        ${item}Component," >> src/app/app.component.ts
