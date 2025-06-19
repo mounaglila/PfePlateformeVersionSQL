@@ -1,0 +1,56 @@
+/* General Layout */
+.layout {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #d9ecff;
+    .content {
+        flex: 1;
+        margin-left: 200px;
+        padding: 30px;
+    }
+    .search-bar {
+        padding: 8px 16px;
+        margin-left: auto;
+        border-radius: 50px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        width: 220px;
+        outline: none;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+}
+
+@media (max-width: 768px) {
+    .layout {
+        flex-direction: column;
+        .sidebar {
+            position: relative;
+            width: 100%;
+            flex-direction: row;
+            padding: 10px;
+            h2 { font-size: 18px; margin: 0 10px 0 0; }
+            nav ul { display: flex; justify-content: space-around; flex: 1; li { margin: 0; } }
+        }
+        .content {
+            margin: 0;
+            padding: 10px;
+            .top-nav { flex-wrap: wrap; a { margin: 5px; font-size: 14px; } }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .layout {
+        .sidebar { display: none; }
+        .content {
+            margin: 0;
+            .top-nav {
+                justify-content: center;
+                a { flex: 1 0 45%; text-align: center; padding: 8px; font-size: 13px; }
+            }
+        }
+    }
+}

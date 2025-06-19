@@ -1,0 +1,45 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px;
+    table-layout: auto;
+}
+th, td {
+    padding: 8px;
+    text-align: center;
+    font-size: 12px;
+}
+thead {
+    background: #014e85;
+    color: #fff;
+}
+tbody tr:nth-child(odd) {
+    background: #f9f9f9;
+}
+tbody tr:nth-child(even) {
+    background: #f4f7fa;
+}
+tbody tr:hover {
+    background: #eaf2f8;
+}
+.btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    background: #d6eaff;
+    border: 1px solid #a9d5ff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn:hover {
+    background: #b8d8ff;
+}
+@media (max-width: 768px) {
+    table {
+        min-width: 500px;
+    }
+}
+@media (max-width: 480px) {
+    table {
+        min-width: 400px;
+    }
+}

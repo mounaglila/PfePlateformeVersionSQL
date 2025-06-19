@@ -1,0 +1,23 @@
+<p>products Table:</p>
+<div *ngIf="tables.length > 0">
+    <div *ngFor="let table of tables">
+        <table border="1" *ngIf="table === 'products'">
+            <thead>
+                <tr>
+                    <th *ngFor="let column of getColumns(table)">{{ column }}</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of dataMap[table]">
+                    <td *ngFor="let column of getColumns(table)">{{ row[column] }}</td>
+                    <td>
+                        <button (click)="viewproducts(row)" class="btn"><i class="fas fa-eye"></i>View</button>
+                        <button (click)="updateproducts(row)" class="btn"><i class="fas fa-pencil-alt"></i>Update</button>
+                        <button (click)="deleteproducts(row._id)" class="btn"><i class="fas fa-trash-alt"></i>delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

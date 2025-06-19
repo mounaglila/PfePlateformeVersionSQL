@@ -7,7 +7,7 @@ export DB_URI="$1"
 export DB_NAME="$2"
 export USERNAME="$3"
 export PASSWORD="$4"
-export PORT="${5:-3000}" 
+export PORT="${5:-3306}" 
 export ROOT_DIR="$6"
 # Définition des répertoires
 BACKEND_DIR="$ROOT_DIR/backend"
@@ -76,11 +76,12 @@ EOF
 cat > "$CONFIG_DIR/dbConnection.js" <<EOF
 const mysql = require('mysql2/promise');
 // Use environment variables
-const USER = process.env.USERNAME || 'root';
-const PASS = process.env.PASSWORD || '';
-const HOST = process.env.DB_URI || 'localhost';
-const DB_NAME = process.env.DB_NAME || 'test';
-const PORT = process.env.PORT || 3306;
+const USER = '${USERNAME}';
+const PASS = '${PASSWORD}';
+const HOST = '${DB_URI}';
+const DB_NAME = '${DB_NAME}';
+const PORT = ${PORT};
+
 let connection;
 
 async function connect() {

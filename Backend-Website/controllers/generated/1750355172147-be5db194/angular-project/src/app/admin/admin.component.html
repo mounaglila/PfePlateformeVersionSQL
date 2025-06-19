@@ -1,0 +1,24 @@
+<div class="admin-dashboard">
+    <p>⚙️Admin Dashboard</p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Table Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let table of tables">
+                <td>{{ table }}</td>
+                <td>
+                    <button (click)="viewTable(table)" class="btn">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button (click)="deleteTable(table)" class="btn">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

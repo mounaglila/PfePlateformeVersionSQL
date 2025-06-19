@@ -1,0 +1,10 @@
+<h2>Update {{ table }}</h2>
+<form *ngIf="itemData && objectKeys(itemData).length > 0" (ngSubmit)="updateItem()">
+    <ng-container *ngFor="let key of objectKeys(itemData)">
+        <div *ngIf="key !== '_id'">
+            <label>{{ key }}:</label>
+            <input type="text" [(ngModel)]="itemData[key]" [name]="key" />
+        </div>
+    </ng-container>
+    <button type="submit">Update</button>
+</form>

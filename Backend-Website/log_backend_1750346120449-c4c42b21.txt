@@ -1,0 +1,10 @@
+===== Setting up Node.js Backend Mysql =====
+DB_URI: localhost
+DB_NAME: ecommerce_db
+USERNAME: root
+PASSWORD: root1234
+PORT: 3306
+Backend folder created.
+Config folder created.
+Routes folder created.
+/home/mouna/PFELASTVERSION/Backend-Website/controllers/Backend/Node/run-Node-Mysql.sh: line 76: Connecting: command not found
